@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.LocationDeviceMapper">
+    <resultMap id="LocationDeviceResult" type="com.ruoyi.common.core.domain.entity.LocationDevice">
+        <id property="dId" column="dId" />
+        <result property="deviceId" column="deviceId" />
+        <result property="deviceIp" column="deviceIp" />
+        <result property="createTime" column="create_time" />
+        <result property="createBy" column="create_by" />
+        <result property="updateBy" column="update_by" />
+        <result property="updateTime" column="update_time" />
+        <result property="delFlag" column="delFlag" />
+    </resultMap>
+
+<!--分页模糊查询设备数据-->
+    <select id="selectDeviceList" parameterType="com.ruoyi.common.core.domain.entity.LocationDevice" resultMap="LocationDeviceResult">
+       SELECT dId,deviceId, deviceIp, create_time, create_by, update_time, update_by
+	    FROM
+	ry.sys_device
+	where delFlag='0'
+        <if test="deviceId != null and deviceId != ''">
+            AND deviceId like concat('%', #{deviceId}, '%')
+        </if>
+        <if test="deviceIp != null and deviceIp != ''">
+            AND deviceIp like concat('%', #{deviceIp}, '%')
+        </if>
+        <!-- 数据范围过滤 -->
+        ${params.dataScope}
+    </select>
+
+<!--    校验设备号是否重复-->
+    <select id="selectDeviceByDeviceId" parameterType="String" resultType="int">
+     select count(1) from sys_device where deviceId=#{deviceId} limit 1
+    </select>
+
+<!--    保存新增设备信息-->
+    <insert id="insertDevice" parameterType="com.ruoyi.common.core.domain.entity.LocationDevice" useGeneratedKeys="true" keyProperty="deviceId">
+    insert into sys_device(
+        <if test="deviceId!=null and deviceId!='' ">deviceId,</if>
+        <if test="deviceIp!=null and deviceIp!='' ">deviceIp,</if>
+        <if test="createBy!=null and createBy!='' ">create_by,</if>
+        <if test="updateTime!=null ">update_time,</if>
+        <if test="updateBy!=null and updateBy!='' ">update_by,</if>
+        <if test="manufacturer!=null and manufacturer!='' ">manufacturer,</if>
+        <if test="description!=null and description!='' ">description,</if>
+        create_time
+    )values (
+        <if test="deviceId!=null and deviceId!='' ">#{deviceId},</if>
+        <if test="deviceIp!=null and deviceIp!='' ">#{deviceIp},</if>
+        <if test="createBy!=null and createBy!='' ">#{createBy},</if>
+        <if test="updateTime!=null ">#{updateTime},</if>
+        <if test="updateBy!=null and updateBy!='' ">#{updateBy},</if>
+        <if test="manufacturer!=null and manufacturer!='' ">#{manufacturer},</if>
+        <if test="description!=null and description!='' ">#{description},</if>
+        sysdate()
+        )
+    </insert>
+
+<!--    根据设备号查询设备-->
+    <select id="selectDeviceBydId" parameterType="int" resultMap="LocationDeviceResult">
+        SELECT dId,deviceId, deviceIp, create_time, create_by, update_time, update_by,manufacturer,description
+        FROM
+        ry.sys_device
+        where delFlag='0'
+        <if test="dId != null and dId !=0">
+            AND dId = #{dId}
+        </if>
+
+    </select>
+
+<!--    保存修改设备信息-->
+    <update id="updateDevice" parameterType="com.ruoyi.common.core.domain.entity.LocationDevice" >
+        update
+        ry.sys_device
+        <set>
+            <if test="deviceId != null and deviceId!=''">deviceId= #{deviceId},</if>
+            <if test="deviceIp != null and deviceIp!=''">deviceIp= #{deviceIp},</if>
+            <if test="manufacturer != null and manufacturer!=''">manufacturer= #{manufacturer},</if>
+            <if test="description != null and description!=''">description= #{description},</if>
+            <if test="updateBy != null and updateBy!=''">update_by= #{updateBy},</if>
+            update_time= sysdate()
+        </set>
+        where dId= #{dId}
+    </update>
+
+<!--    根据设备id逻辑删除设备-->
+    <update id="deleteDeviceBydId" parameterType="int">
+        update ry.sys_device
+        <set>
+           delFlag = '2'
+        </set>
+        where dId=#{dId}
+    </update>
+
+<!--    根据设备id批量删除-->
+    <delete id="deleteDeviceByIds" parameterType="integer">
+        update ry.sys_device set delFlag = '2' where dId in
+        <foreach collection="array" item="dId" open="(" separator="," close=")">
+            #{dId}
+        </foreach>
+    </delete>
+
+<!--    根据设备号更改设备ip-->
+    <update id="updateIpByDeviceId" parameterType="com.ruoyi.common.core.domain.entity.LocationDevice">
+        update ry.sys_device
+        <set>deviceIp= #{deviceIp},update_time= sysdate()</set>
+        where
+        deviceId= #{deviceId}
+    </update>
+</mapper>
+    

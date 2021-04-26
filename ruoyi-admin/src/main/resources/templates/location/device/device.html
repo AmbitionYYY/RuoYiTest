@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('设备列表')" />
+    <th:block th:include="include :: layout-latest-css" />
+    <th:block th:include="include :: ztree-css" />
+</head>
+<body class="gray-bg">
+<div class="ui-layout-center">
+    <div class="container-div">
+        <div class="row">
+            <div class="col-sm-12 search-collapse">
+                <form id="device-form">
+                    <input type="hidden" id="deptId" name="deptId">
+                    <input type="hidden" id="parentId" name="parentId">
+                    <div class="select-list">
+                        <ul>
+                            <li>
+                                设备号：<input type="text" name="deviceId"/>
+                            </li>
+                            <li>
+                                设备IP：<input type="text" name="deviceIp"/>
+                            </li>
+                            <li>
+                                <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>
+                                <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>
+                            </li>
+                        </ul>
+                    </div>
+                </form>
+            </div>
+
+            <div class="btn-group-sm" id="toolbar" role="group">
+                <a class="btn btn-success" onclick="$.operate.addTab()" shiro:hasPermission="location:device:add">
+                    <i class="fa fa-plus"></i> 新增
+                </a>
+                <a class="btn btn-primary multiple disabled" onclick="javascript:editDeviceIp()" shiro:hasPermission="location:device:edit">
+                    <i class="fa fa-edit"></i> 修改
+                </a>
+                <a class="btn btn-danger multiple disabled" onclick="$.operate.removeAll()" shiro:hasPermission="location:device:remove">
+                    <i class="fa fa-remove"></i> 删除
+                </a>
+            </div>
+
+            <div class="col-sm-12 select-table table-striped">
+                <table id="bootstrap-table"></table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--模态窗口开始-->
+<!-- 模态框（Modal） -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="myModalLabel">批量修改设备Ip</h4>
+            </div>
+            <div id="cycleModule">
+            <div class="col-sm-8">
+            <div class="form-group">
+
+                    设备号：<input class="form-control" type="text" >
+
+                    设备Ip：<input class="form-control" type="text" >
+
+            </div>
+            </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-offset-5 col-sm-10">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                <button type="button" onclick="javascript:saveDeviceIp()" class="btn btn-primary">提交更改</button>
+            </div>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal -->
+</div>
+<!--模态窗口结束-->
+<th:block th:include="include :: footer" />
+<th:block th:include="include :: layout-latest-js" />
+<th:block th:include="include :: ztree-js" />
+<script th:inline="javascript">
+    var editFlag = [[${@permission.hasPermi('location:device:edit')}]];
+    var removeFlag = [[${@permission.hasPermi('location:device:remove')}]];
+    var prefix = ctx + "location/device";
+    var ArrayLength =0;//修改设备IP数组的长度
+
+    $(function() {
+        queryDeviceList();
+    });
+
+    function queryDeviceList() {
+        var options = {
+            url: prefix + "/list",
+            createUrl: prefix + "/add",
+            updateUrl: prefix + "/edit/{id}",
+            removeUrl: prefix + "/remove",
+            sortName: "createTime",
+            sortOrder: "desc",
+            modalName: "设备",
+            columns: [{
+                checkbox: true
+            },
+                {
+                    field: 'dId',
+                    title: '设备Id',
+                    visible:false
+                },
+                {
+                    field: 'deviceId',
+                    title: '设备号'
+                },
+                {
+                    field: 'deviceIp',
+                    title: '设备IP',
+                },
+                {
+                    field: 'createTime',
+                    title: '创建时间',
+                    sortable: true
+                },
+                {
+                    field: 'createBy',
+                    title: '创建人'
+                },
+                {
+                    field: 'updateTime',
+                    title: '修改时间',
+                    sortable: true
+                },
+                {
+                    field: 'updateBy',
+                    title: '修改人',
+
+                },
+                {
+                    title: '操作',
+                    align: 'center',
+                    formatter: function(value, row, index) {
+                        var actions = [];
+                        actions.push('<a class="btn btn-success btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.dId + '\')"><i class="fa fa-edit"></i>编辑</a> ');
+                        actions.push('<a class="btn btn-danger btn-xs ' + removeFlag + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.dId + '\')"><i class="fa fa-remove"></i>删除</a> ');
+                        return actions.join('');
+                    }
+                }]
+        };
+        $.table.init(options);
+    }
+    function editDeviceIp() {
+        $("#myModal").modal('show');
+        var rows = $.map($("#" + table.options.id).bootstrapTable('getSelections'), function (row) {
+            return $.common.getItemField(row, table.options.columns[2].field);
+        });
+        console.info(rows);
+         ArrayLength=rows.length;
+        var selectedList = "";
+        for (var i=0;i<ArrayLength;i++){
+            selectedList+=" <div class=\"col-sm-8\">\n" +
+                "            <div class=\"form-group\">\n" +
+                "\n" +
+                "                    设备号：<input  id=\"deviceId"+i+"\" readonly class=\"form-control\" type=\"text\" >\n" +
+                "\n" +
+                "                    设备Ip：<input id=\"deviceIp"+i+"\"  class=\"form-control\" type=\"text\" >\n" +
+                "\n" +
+                "            </div>\n" +
+                "            </div>"
+        }
+       document.getElementById('cycleModule').innerHTML=selectedList;
+        for (var m=0;m<ArrayLength;m++){
+            $("#deviceId"+m).val(rows[m])
+        }
+
+    }
+    //保存更改的设备Ip
+    function saveDeviceIp() {
+        var deviceList=new Array();
+        for (var n=0;n<ArrayLength;n++) {
+            var device={deviceId:$("#deviceId"+n).val(),deviceIp:$("#deviceIp"+n).val()}
+            deviceList.push(device);
+        }
+
+        $.ajax({
+            url:prefix + "/editAllDeviceIp",
+            type: "post",
+            contentType: "application/json;charset=utf-8",
+            data: JSON.stringify(deviceList),
+            success:function (data) {
+                console.info("请求成功！");
+                $("#myModal").modal('hide')
+            },
+            error:function () {
+                console.info("未知错误！");
+            }
+        })
+
+    }
+</script>
+</body>
+</html>
