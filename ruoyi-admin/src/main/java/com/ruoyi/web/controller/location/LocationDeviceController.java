@@ -91,7 +91,7 @@ public class LocationDeviceController extends BaseController {
         {
             return error("新增设备'" + device.getDeviceId() + "'失败，此设备号已存在");
         }
-        device.setCreateBy(ShiroUtils.getLoginName());
+
         return toAjax(locationDeviceService.insertDevice(device));
     }
 

@@ -79,6 +79,7 @@
     </div><!-- /.modal -->
 </div>
 <!--模态窗口结束-->
+
 <th:block th:include="include :: footer" />
 <th:block th:include="include :: layout-latest-js" />
 <th:block th:include="include :: ztree-js" />
@@ -150,6 +151,7 @@
         $.table.init(options);
     }
     function editDeviceIp() {
+        if (ArrayLength<=25){
         $("#myModal").modal('show');
         var rows = $.map($("#" + table.options.id).bootstrapTable('getSelections'), function (row) {
             return $.common.getItemField(row, table.options.columns[2].field);
@@ -172,7 +174,7 @@
         for (var m=0;m<ArrayLength;m++){
             $("#deviceId"+m).val(rows[m])
         }
-
+    }else {alert("一次修改设备IP的数量不能超过25条！");}
     }
     //保存更改的设备Ip
     function saveDeviceIp() {
@@ -184,19 +186,22 @@
 
         $.ajax({
             url:prefix + "/editAllDeviceIp",
-            type: "post",
+            type: "POST",
             contentType: "application/json;charset=utf-8",
             data: JSON.stringify(deviceList),
             success:function (data) {
-                console.info("请求成功！");
+                alert(data.msg);
                 $("#myModal").modal('hide')
+
             },
             error:function () {
-                console.info("未知错误！");
+                alert("操作失败！")
             }
         })
 
     }
+
+
 </script>
 </body>
 </html>
