@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.SysDeviceRecordMapper">
+    
+    <resultMap type="com.ruoyi.system.domain.SysDeviceRecord" id="SysDeviceRecordResult">
+        <result property="rId"    column="rId"    />
+        <result property="deviceId"    column="deviceId"    />
+        <result property="originalIp"    column="originalIp"    />
+        <result property="modifiedIp"    column="modifiedIp"    />
+        <result property="manufacturer"    column="manufacturer"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="successFlag"    column="successFlag"    />
+    </resultMap>
+
+    <sql id="selectSysDeviceRecordVo">
+        select rId, deviceId, originalIp, modifiedIp, manufacturer, update_time, successFlag from sys_device_record
+    </sql>
+
+    <select id="selectSysDeviceRecordList" parameterType="com.ruoyi.system.domain.SysDeviceRecord" resultMap="SysDeviceRecordResult">
+        <include refid="selectSysDeviceRecordVo"/>
+        <where>  
+            <if test="deviceId != null  and deviceId != ''"> AND deviceId like concat('%', #{deviceId}, '%')</if>
+            <if test="params.beginTime != null and params.beginTime != ''"><!-- 开始时间检索 -->
+                and date_format(update_time,'%y%m%d') &gt;= date_format(#{params.beginTime},'%y%m%d')
+            </if>
+            <if test="params.endTime != null and params.endTime != ''"><!-- 结束时间检索 -->
+                and date_format(update_time,'%y%m%d') &lt;= date_format(#{params.endTime},'%y%m%d')
+            </if>
+        </where>
+        order by update_time desc
+    </select>
+    
+    <select id="selectSysDeviceRecordById" parameterType="Long" resultMap="SysDeviceRecordResult">
+        <include refid="selectSysDeviceRecordVo"/>
+        where rId = #{rId}
+    </select>
+        
+    <insert id="insertSysDeviceRecord" parameterType="com.ruoyi.system.domain.SysDeviceRecord" useGeneratedKeys="true" keyProperty="rId">
+        insert into sys_device_record
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="deviceId != null">deviceId,</if>
+            <if test="originalIp != null">originalIp,</if>
+            <if test="modifiedIp != null">modifiedIp,</if>
+            <if test="manufacturer != null">manufacturer,</if>
+            <if test="successFlag != null">successFlag,</if>
+            <if test="dId != null">dId,</if>
+            update_time
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="deviceId != null">#{deviceId},</if>
+            <if test="originalIp != null">#{originalIp},</if>
+            <if test="modifiedIp != null">#{modifiedIp},</if>
+            <if test="manufacturer != null">#{manufacturer},</if>
+            <if test="successFlag != null">#{successFlag},</if>
+            <if test="dId != null">#{dId},</if>
+            sysdate()
+         </trim>
+    </insert>
+
+    <update id="updateSysDeviceRecord" parameterType="com.ruoyi.system.domain.SysDeviceRecord">
+        update sys_device_record
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="deviceId != null">deviceId = #{deviceId},</if>
+            <if test="originalIp != null">originalIp = #{originalIp},</if>
+            <if test="modifiedIp != null">modifiedIp = #{modifiedIp},</if>
+            <if test="manufacturer != null">manufacturer = #{manufacturer},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="successFlag != null">successFlag = #{successFlag},</if>
+            update_time= sysdate()
+        </trim>
+        where dId = #{dId}
+    </update>
+
+    <delete id="deleteSysDeviceRecordById" parameterType="Long">
+        delete from sys_device_record where rId = #{rId}
+    </delete>
+
+    <delete id="deleteSysDeviceRecordByIds" parameterType="String">
+        delete from sys_device_record where rId in
+        <foreach item="rId" collection="array" open="(" separator="," close=")">
+            #{rId}
+        </foreach>
+    </delete>
+
+</mapper>

@@ -180,8 +180,12 @@
     function saveDeviceIp() {
         var deviceList=new Array();
         for (var n=0;n<ArrayLength;n++) {
+            if ($("#deviceIp"+n).val()!=null&&$("#deviceIp"+n).val()!='') {
             var device={deviceId:$("#deviceId"+n).val(),deviceIp:$("#deviceIp"+n).val()}
             deviceList.push(device);
+            }else {
+                alert("设备IP不能为空！");
+            }
         }
 
         $.ajax({
@@ -192,7 +196,6 @@
             success:function (data) {
                 alert(data.msg);
                 $("#myModal").modal('hide')
-
             },
             error:function () {
                 alert("操作失败！")

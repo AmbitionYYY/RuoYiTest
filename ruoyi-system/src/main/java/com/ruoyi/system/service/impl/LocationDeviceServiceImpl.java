@@ -3,12 +3,12 @@ package com.ruoyi.system.service.impl;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.ruoyi.common.constant.DeviceConstants;
-import com.ruoyi.common.constant.UserConstants;
 import com.ruoyi.common.core.domain.entity.LocationDevice;
 import com.ruoyi.common.core.text.Convert;
 import com.ruoyi.common.utils.ShiroUtils;
-import com.ruoyi.common.utils.http.HttpUtils;
+import com.ruoyi.system.domain.SysDeviceRecord;
 import com.ruoyi.system.mapper.LocationDeviceMapper;
+import com.ruoyi.system.mapper.SysDeviceRecordMapper;
 import com.ruoyi.system.service.LocationDeviceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
@@ -17,15 +17,8 @@ import org.springframework.http.HttpRequest;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.client.RestTemplate;
 
-import java.lang.reflect.Array;
-import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -39,6 +32,8 @@ public class LocationDeviceServiceImpl implements LocationDeviceService {
 
     @Autowired
     private LocationDeviceMapper locationDeviceMapper;
+    @Autowired
+    private SysDeviceRecordMapper sysDeviceRecordMapper;
 
     /**
      * @Description 校验设备号是否重复,校验码为0代表不重复，1代表重复
@@ -49,7 +44,7 @@ public class LocationDeviceServiceImpl implements LocationDeviceService {
      **/
     @Override
     public String checkDeviceIdUnique(String deviceId) {
-        int count = locationDeviceMapper.selectDeviceByDeviceId(deviceId);
+        int count = locationDeviceMapper.checkDeviceByDeviceId(deviceId);
 
         return count>0?DeviceConstants.DEVICE_ID_NOT_UNIQUE:DeviceConstants.DEVICE_ID_UNIQUE;
     }
@@ -107,6 +102,22 @@ public class LocationDeviceServiceImpl implements LocationDeviceService {
     @Transactional
     public int updateDevice(LocationDevice device) {
         device.setUpdateBy(ShiroUtils.getLoginName());
+        LocationDevice originaldevice = locationDeviceMapper.selectDeviceBydId(device.getdId());
+        String modifiedIp = device.getDeviceIp();
+        String mannuerfacturer = device.getManufacturer();
+        String deviceId=device.getDeviceId();
+        int dId=device.getdId();
+        if (modifiedIp!=null&&mannuerfacturer!=null&&deviceId!=null){
+            SysDeviceRecord deviceRecord=new SysDeviceRecord();
+            deviceRecord.setOriginalIp(originaldevice.getDeviceIp());
+            deviceRecord.setModifiedIp(modifiedIp);
+            deviceRecord.setDeviceId(deviceId);
+            deviceRecord.setManufacturer(mannuerfacturer);
+            deviceRecord.setdId(dId);
+            sysDeviceRecordMapper.updateSysDeviceRecord(deviceRecord);
+        }else {
+            return 0;
+        }
         return locationDeviceMapper.updateDevice(device);
     }
 
@@ -146,12 +157,12 @@ public class LocationDeviceServiceImpl implements LocationDeviceService {
     @Override
     @Transactional
     public int saveAllDeviceIp(List<LocationDevice> list) {
+        int successNumber=0;
         String url="http://127.0.0.1:8000/terminal/settings?clientId=";
         JSONObject pareJson = new JSONObject();
 //        keyMap结构传输数据,一个循环代表一个设备数据
          for (int i=0;i<list.size();i++){
 //             获取第一个设备数据
-
              LocationDevice device = list.get(i);
              JSONObject ipJson = new JSONObject();
              ipJson.put("19",device.getDeviceIp());
@@ -169,12 +180,32 @@ public class LocationDeviceServiceImpl implements LocationDeviceService {
              HttpEntity<String> formEntity = new HttpEntity<String>(pareJson.toString(), headers);
              RestTemplate restTemplate = new RestTemplate();
              String post = restTemplate.postForEntity(url + device.getDeviceId(), formEntity, String.class).getBody();
-             System.out.println("发送的post请求为："+post);
-             if(post!=null){
+            if (post==null){
+                return 0;
+            }
+//             字符串转换为Json对象
+            JSONObject postJson=  JSON.parseObject(post);
+            String resultCode=postJson.getString("resultCode");
+
+//             deviceInfo原设备信息，device本次循环设备，deviceRecord生成的记录对象
+             LocationDevice deviceInfo = locationDeviceMapper.selectDeviceByDeviceId(device.getDeviceId());
+             SysDeviceRecord deviceRecord =new SysDeviceRecord();
+             deviceRecord.setDeviceId(device.getDeviceId());
+             deviceRecord.setModifiedIp(device.getDeviceIp());
+             deviceRecord.setManufacturer(deviceInfo.getManufacturer());
+             deviceRecord.setOriginalIp(deviceInfo.getDeviceIp());
+             deviceRecord.setdId(deviceInfo.getdId());
+
+             if(resultCode!=null&&resultCode.equals("0")){
                  //数据库执行更新IP的操作
                  locationDeviceMapper.updateIpByDeviceId(device);
-             }else { return 0; }
+                 deviceRecord.setSuccessFlag(0);
+                 sysDeviceRecordMapper.insertSysDeviceRecord(deviceRecord);
+                 successNumber++;
+             }else {
+                 sysDeviceRecordMapper.insertSysDeviceRecord(deviceRecord);
+                 continue; }
         }
-         return list.size();
+         return successNumber;
     }
 }

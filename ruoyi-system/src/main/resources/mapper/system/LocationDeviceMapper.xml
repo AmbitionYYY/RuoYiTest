@@ -31,7 +31,7 @@
     </select>
 
 <!--    校验设备号是否重复-->
-    <select id="selectDeviceByDeviceId" parameterType="String" resultType="int">
+    <select id="checkDeviceByDeviceId" parameterType="String" resultType="int">
      select count(1) from sys_device where deviceId=#{deviceId} limit 1
     </select>
 
@@ -109,5 +109,15 @@
         where
         deviceId= #{deviceId}
     </update>
+
+    <select id="selectDeviceByDeviceId" parameterType="string" resultType="com.ruoyi.common.core.domain.entity.LocationDevice">
+        SELECT dId, deviceIp, create_time, create_by, update_time, update_by,manufacturer,description
+        FROM
+        ry.sys_device
+        where delFlag='0'
+        <if test="deviceId != null and deviceId !=''">
+            AND deviceId = #{deviceId}
+        </if>
+    </select>
 </mapper>
     

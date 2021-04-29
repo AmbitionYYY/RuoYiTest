@@ -30,7 +30,7 @@ public interface LocationDeviceMapper {
      * @param
      * @return
      **/
-    int selectDeviceByDeviceId(String deviceId);
+    int checkDeviceByDeviceId(String deviceId);
 
     int insertDevice(LocationDevice device);
     /**
@@ -50,4 +50,13 @@ public interface LocationDeviceMapper {
     int deleteDeviceByIds(Integer[] deviceDids);
 
     void updateIpByDeviceId(LocationDevice device);
+
+    /**
+     * @Description 通过设备号查询设备数据
+     * @Author JXY
+     * @Date 16:29 2021/4/28
+     * @param  ：设备号
+     * @return  ：设备对象
+     **/
+    LocationDevice selectDeviceByDeviceId(String deviceId);
 }
