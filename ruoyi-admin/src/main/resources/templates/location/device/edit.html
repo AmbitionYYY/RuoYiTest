@@ -13,7 +13,7 @@
                 <div class="form-group">
                     <label class="col-sm-4 control-label is-required">设备号：</label>
                     <div class="col-sm-8">
-                        <input name="deviceId" maxlength="15" th:value="${device.deviceId}" placeholder="请输入设备号" class="form-control" type="text" >
+                        <input name="deviceId" id="deviceId" maxlength="15" th:value="${device.deviceId}" placeholder="请输入设备号" class="form-control" type="text" >
                     </div>
                 </div>
             </div>
@@ -59,15 +59,24 @@
 </div>
 <th:block th:include="include :: footer" />
 <th:block th:include="include :: select2-js" />
-<script type="text/javascript">
+<script>
     var prefix = ctx + "location/device";
 
     function submitHandler() {
-        if ($.validate.form()) {
-            var data = $("#form-device-edit").serializeArray();
-            console.info(data);
-            $.operate.saveTab(prefix + "/edit", data);
+        var deviceId = $("#deviceId").val();
+        var deviceIp = $("#deviceIp").val();
+        if (!isChineseChar(deviceId) && !isChineseChar(deviceIp)) {
+            if ($.validate.form()) {
+                var data = $("#form-device-edit").serializeArray();
+                $.operate.saveTab(prefix + "/edit", data);
+            }
         }
+        $.modal.alert("设备号以及设备Ip中不允许出现中文字符！", modal_status.WARNING);
+    }
+    //是否含中文校验
+    function isChineseChar(str) {
+        var  reg = /[\u4E00-\u9FA5\uF900-\uFA2D]/;
+        return  reg.test(str);
     }
 
 </script>

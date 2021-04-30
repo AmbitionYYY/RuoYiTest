@@ -12,7 +12,7 @@
                 <div class="form-group">
                     <label class="col-sm-4 control-label is-required">设备号：</label>
                     <div class="col-sm-8">
-                        <input name="deviceId" maxlength="15" placeholder="请输入设备号" class="form-control" type="text"  >
+                        <input id="deviceId" name="deviceId" maxlength="15" placeholder="请输入设备号" class="form-control" type="text"  >
                     </div>
                 </div>
             </div>
@@ -62,11 +62,22 @@
     var prefix = ctx + "location/device";
 
     function submitHandler() {
-        if ($.validate.form() ) {
-            //将表单数据转换为数组
-            var data = $("#form-device-add").serializeArray();
-            $.operate.saveTab(prefix + "/add", data);
-        }
+        //添加是否含中文校验
+       var deviceId= $("#deviceId").val();
+       var deviceIp= $("#deviceIp").val();
+      if (!isChineseChar(deviceId)&&!isChineseChar(deviceIp)){
+          if ($.validate.form()) {
+              //将表单数据转换为数组
+              var data = $("#form-device-add").serializeArray();
+              $.operate.saveTab(prefix + "/add", data);
+          }
+      }
+        $.modal.alert("设备号以及设备Ip中不允许出现中文字符！", modal_status.WARNING);
+    }
+    //是否含中文校验
+    function isChineseChar(str) {
+        var  reg = /[\u4E00-\u9FA5\uF900-\uFA2D]/;
+        return  reg.test(str);
     }
 </script>
 </body>
