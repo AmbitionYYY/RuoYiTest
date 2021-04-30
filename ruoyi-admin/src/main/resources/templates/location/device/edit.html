@@ -13,7 +13,7 @@
                 <div class="form-group">
                     <label class="col-sm-4 control-label is-required">设备号：</label>
                     <div class="col-sm-8">
-                        <input name="deviceId" th:value="${device.deviceId}" placeholder="请输入设备号" class="form-control" type="text" >
+                        <input name="deviceId" maxlength="15" th:value="${device.deviceId}" placeholder="请输入设备号" class="form-control" type="text" >
                     </div>
                 </div>
             </div>
@@ -23,10 +23,7 @@
                 <div class="form-group">
                     <label class="col-sm-4 control-label">设备IP：</label>
                     <div class="col-sm-8">
-                        <div class="input-group">
-                            <input id="deviceIp"  th:value="${device.deviceIp}" name="deviceIp" placeholder="请输入设备IP" class="form-control" type="text">
-                            <span class="input-group-addon"></span>
-                        </div>
+                            <input id="deviceIp"  maxlength="15" th:value="${device.deviceIp}" name="deviceIp" placeholder="请输入设备IP" class="form-control" type="text">
                     </div>
                 </div>
             </div>
@@ -46,7 +43,7 @@
                 <div class="form-group">
                     <label class="col-xs-2 control-label">设备描述：</label>
                     <div class="col-xs-10">
-                        <textarea name="description" th:text="${device.description}"  placeholder="请输入产品描述" maxlength="500" class="form-control" rows="3"></textarea>
+                        <textarea style="width: 412.13px" name="description" th:text="${device.description}"  placeholder="请输入产品描述" maxlength="50" class="form-control" rows="3"></textarea>
                     </div>
                 </div>
             </div>

@@ -4,8 +4,7 @@ import com.ruoyi.common.core.domain.BaseEntity;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.*;
 import java.io.Serializable;
 import java.util.Date;
 
@@ -26,11 +25,13 @@ public class LocationDevice extends BaseEntity  {
      * 设备号
      */
     @NotBlank(message = "设备号不能为空！")
+    @Size(min = 5,max = 15,message ="设备号的长度必须在5-15之间！" )
     private String deviceId;
     /**
      * 设备IP
      */
     @NotBlank(message = "设备IP不能为空！")
+    @Size(min = 7,max = 15,message = "设备IP的长度必须在7-15之间！")
     private String deviceIp;
 
     /**
@@ -40,10 +41,12 @@ public class LocationDevice extends BaseEntity  {
     /**
      * 生产厂家
      */
+    @Size(min = 1,max = 30,message = "厂家描述长度必须在1-30之间！")
     private String manufacturer;
     /**
      * 设备描述
      */
+    @Size(min = 1,max = 50,message = "设备描述长度必须在1-50之间！")
     private String description;
 
     public int getdId() {

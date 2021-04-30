@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
 <head>
-    <th:block th:include="include :: header('设备列表')" />
-    <th:block th:include="include :: layout-latest-css" />
-    <th:block th:include="include :: ztree-css" />
+    <th:block th:include="include :: header('设备列表')"/>
+    <th:block th:include="include :: layout-latest-css"/>
+    <th:block th:include="include :: ztree-css"/>
 </head>
 <body class="gray-bg">
 <div class="ui-layout-center">
@@ -22,8 +22,10 @@
                                 设备IP：<input type="text" name="deviceIp"/>
                             </li>
                             <li>
-                                <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>
-                                <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>
+                                <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i
+                                        class="fa fa-search"></i>&nbsp;搜索</a>
+                                <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i
+                                        class="fa fa-refresh"></i>&nbsp;重置</a>
                             </li>
                         </ul>
                     </div>
@@ -34,10 +36,12 @@
                 <a class="btn btn-success" onclick="$.operate.addTab()" shiro:hasPermission="location:device:add">
                     <i class="fa fa-plus"></i> 新增
                 </a>
-                <a class="btn btn-primary multiple disabled" onclick="javascript:editDeviceIp()" shiro:hasPermission="location:device:edit">
+                <a class="btn btn-primary multiple disabled" onclick="javascript:editDeviceIp()"
+                   shiro:hasPermission="location:device:edit">
                     <i class="fa fa-edit"></i> 修改
                 </a>
-                <a class="btn btn-danger multiple disabled" onclick="$.operate.removeAll()" shiro:hasPermission="location:device:remove">
+                <a class="btn btn-danger multiple disabled" onclick="$.operate.removeAll()"
+                   shiro:hasPermission="location:device:remove">
                     <i class="fa fa-remove"></i> 删除
                 </a>
             </div>
@@ -59,37 +63,37 @@
                 <h4 class="modal-title" id="myModalLabel">批量修改设备Ip</h4>
             </div>
             <div id="cycleModule">
-            <div class="col-sm-8">
-            <div class="form-group">
+                <div class="col-sm-8">
+                    <div class="form-group">
 
-                    设备号：<input class="form-control" type="text" >
+                        设备号：<input class="form-control" type="text">
 
-                    设备Ip：<input class="form-control" type="text" >
+                        设备Ip：<input class="form-control" type="text">
 
-            </div>
-            </div>
+                    </div>
+                </div>
             </div>
             <div class="row">
                 <div class="col-sm-offset-5 col-sm-10">
-                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
-                <button type="button" onclick="javascript:saveDeviceIp()" class="btn btn-primary">提交更改</button>
-            </div>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                    <button type="button" onclick="javascript:saveDeviceIp()" class="btn btn-primary">提交更改</button>
+                </div>
             </div>
         </div><!-- /.modal-content -->
     </div><!-- /.modal -->
 </div>
 <!--模态窗口结束-->
 
-<th:block th:include="include :: footer" />
-<th:block th:include="include :: layout-latest-js" />
-<th:block th:include="include :: ztree-js" />
+<th:block th:include="include :: footer"/>
+<th:block th:include="include :: layout-latest-js"/>
+<th:block th:include="include :: ztree-js"/>
 <script th:inline="javascript">
     var editFlag = [[${@permission.hasPermi('location:device:edit')}]];
     var removeFlag = [[${@permission.hasPermi('location:device:remove')}]];
     var prefix = ctx + "location/device";
-    var ArrayLength =0;//修改设备IP数组的长度
+    var ArrayLength = 0;//修改设备IP数组的长度
 
-    $(function() {
+    $(function () {
         queryDeviceList();
     });
 
@@ -108,7 +112,7 @@
                 {
                     field: 'dId',
                     title: '设备Id',
-                    visible:false
+                    visible: false
                 },
                 {
                     field: 'deviceId',
@@ -140,7 +144,7 @@
                 {
                     title: '操作',
                     align: 'center',
-                    formatter: function(value, row, index) {
+                    formatter: function (value, row, index) {
                         var actions = [];
                         actions.push('<a class="btn btn-success btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.dId + '\')"><i class="fa fa-edit"></i>编辑</a> ');
                         actions.push('<a class="btn btn-danger btn-xs ' + removeFlag + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.dId + '\')"><i class="fa fa-remove"></i>删除</a> ');
@@ -150,54 +154,58 @@
         };
         $.table.init(options);
     }
+
     function editDeviceIp() {
-        if (ArrayLength<=25){
-        $("#myModal").modal('show');
-        var rows = $.map($("#" + table.options.id).bootstrapTable('getSelections'), function (row) {
-            return $.common.getItemField(row, table.options.columns[2].field);
-        });
-        console.info(rows);
-         ArrayLength=rows.length;
-        var selectedList = "";
-        for (var i=0;i<ArrayLength;i++){
-            selectedList+=" <div class=\"col-sm-8\">\n" +
-                "            <div class=\"form-group\">\n" +
-                "\n" +
-                "                    设备号：<input  id=\"deviceId"+i+"\" readonly class=\"form-control\" type=\"text\" >\n" +
-                "\n" +
-                "                    设备Ip：<input id=\"deviceIp"+i+"\"  class=\"form-control\" type=\"text\" >\n" +
-                "\n" +
-                "            </div>\n" +
-                "            </div>"
+        if (ArrayLength <= 25) {
+            $("#myModal").modal('show');
+            var rows = $.map($("#" + table.options.id).bootstrapTable('getSelections'), function (row) {
+                return $.common.getItemField(row, table.options.columns[2].field);
+            });
+            console.info(rows);
+            ArrayLength = rows.length;
+            var selectedList = "";
+            for (var i = 0; i < ArrayLength; i++) {
+                selectedList += " <div class=\"col-sm-8\">\n" +
+                    "            <div class=\"form-group\">\n" +
+                    "\n" +
+                    "                    设备号：<input  id=\"deviceId" + i + "\" readonly class=\"form-control\" type=\"text\" >\n" +
+                    "\n" +
+                    "                    设备Ip：<input id=\"deviceIp" + i + "\"  class=\"form-control\" type=\"text\" >\n" +
+                    "\n" +
+                    "            </div>\n" +
+                    "            </div>"
+            }
+            document.getElementById('cycleModule').innerHTML = selectedList;
+            for (var m = 0; m < ArrayLength; m++) {
+                $("#deviceId" + m).val(rows[m])
+            }
+        } else {
+            alert("一次修改设备IP的数量不能超过25条！");
         }
-       document.getElementById('cycleModule').innerHTML=selectedList;
-        for (var m=0;m<ArrayLength;m++){
-            $("#deviceId"+m).val(rows[m])
-        }
-    }else {alert("一次修改设备IP的数量不能超过25条！");}
     }
+
     //保存更改的设备Ip
     function saveDeviceIp() {
-        var deviceList=new Array();
-        for (var n=0;n<ArrayLength;n++) {
-            if ($("#deviceIp"+n).val()!=null&&$("#deviceIp"+n).val()!='') {
-            var device={deviceId:$("#deviceId"+n).val(),deviceIp:$("#deviceIp"+n).val()}
-            deviceList.push(device);
-            }else {
+        var deviceList = new Array();
+        for (var n = 0; n < ArrayLength; n++) {
+            if ($("#deviceIp" + n).val() != null && $("#deviceIp" + n).val() != '') {
+                var device = {deviceId: $("#deviceId" + n).val(), deviceIp: $("#deviceIp" + n).val()}
+                deviceList.push(device);
+            } else {
                 alert("设备IP不能为空！");
             }
         }
 
         $.ajax({
-            url:prefix + "/editAllDeviceIp",
+            url: prefix + "/editAllDeviceIp",
             type: "POST",
             contentType: "application/json;charset=utf-8",
             data: JSON.stringify(deviceList),
-            success:function (data) {
+            success: function (data) {
                 alert(data.msg);
                 $("#myModal").modal('hide')
             },
-            error:function () {
+            error: function () {
                 alert("操作失败！")
             }
         })

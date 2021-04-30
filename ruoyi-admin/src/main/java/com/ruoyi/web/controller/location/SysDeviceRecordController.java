@@ -101,17 +101,7 @@ public class SysDeviceRecordController extends BaseController
         return prefix + "/edit";
     }
 
-    /**
-     * 修改保存【请填写功能名称】
-     */
-    @RequiresPermissions("location:record:edit")
-    @Log(title = "【请填写功能名称】", businessType = BusinessType.UPDATE)
-    @PostMapping("/edit")
-    @ResponseBody
-    public AjaxResult editSave(SysDeviceRecord sysDeviceRecord)
-    {
-        return toAjax(sysDeviceRecordService.updateSysDeviceRecord(sysDeviceRecord));
-    }
+
 
     /**
      * 删除【请填写功能名称】

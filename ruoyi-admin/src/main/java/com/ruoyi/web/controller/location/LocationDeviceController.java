@@ -20,6 +20,7 @@ import org.springframework.ui.ModelMap;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -85,7 +86,7 @@ public class LocationDeviceController extends BaseController {
     @Log(title = "设备管理", businessType = BusinessType.INSERT)
     @PostMapping("/add")
     @ResponseBody
-    public AjaxResult addSave(@Validated LocationDevice device)
+    public AjaxResult addSave(@Valid LocationDevice device)
     {
         if (DeviceConstants.DEVICE_ID_NOT_UNIQUE.equals(locationDeviceService.checkDeviceIdUnique(device.getDeviceId())))
         {
@@ -117,7 +118,7 @@ public class LocationDeviceController extends BaseController {
     @Log(title = "设备管理", businessType = BusinessType.UPDATE)
     @PostMapping("/edit")
     @ResponseBody
-    public AjaxResult editSave(@Validated LocationDevice device)
+    public AjaxResult editSave(@Valid LocationDevice device)
     {
         return toAjax(locationDeviceService.updateDevice(device));
     }

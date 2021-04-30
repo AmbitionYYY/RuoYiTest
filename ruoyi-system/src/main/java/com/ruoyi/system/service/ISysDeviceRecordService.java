@@ -41,7 +41,7 @@ public interface ISysDeviceRecordService
      * @param sysDeviceRecord 【请填写功能名称】
      * @return 结果
      */
-    public int updateSysDeviceRecord(SysDeviceRecord sysDeviceRecord);
+//    public int updateSysDeviceRecord(SysDeviceRecord sysDeviceRecord);
 
     /**
      * 批量删除【请填写功能名称】

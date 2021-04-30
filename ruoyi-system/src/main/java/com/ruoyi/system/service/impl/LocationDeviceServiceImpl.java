@@ -36,25 +36,25 @@ public class LocationDeviceServiceImpl implements LocationDeviceService {
     private SysDeviceRecordMapper sysDeviceRecordMapper;
 
     /**
-     * @Description 校验设备号是否重复,校验码为0代表不重复，1代表重复
-     * @Author JXY
-     * @Date 15:09 2021/4/16
      * @param
      * @return
+     * @Description 校验设备号是否重复, 校验码为0代表不重复，1代表重复
+     * @Author JXY
+     * @Date 15:09 2021/4/16
      **/
     @Override
     public String checkDeviceIdUnique(String deviceId) {
         int count = locationDeviceMapper.checkDeviceByDeviceId(deviceId);
 
-        return count>0?DeviceConstants.DEVICE_ID_NOT_UNIQUE:DeviceConstants.DEVICE_ID_UNIQUE;
+        return count > 0 ? DeviceConstants.DEVICE_ID_NOT_UNIQUE : DeviceConstants.DEVICE_ID_UNIQUE;
     }
 
     /**
+     * @param ： 查询分页条件
+     * @return 设备数据列表
      * @Description 查询数据库中已有的设备
      * @Author JXY
      * @Date 18:53 2021/4/16
-     * @param  ： 查询分页条件
-     * @return  设备数据列表
      **/
     @Override
     public List<LocationDevice> selectDeviceList(LocationDevice device) {
@@ -63,11 +63,11 @@ public class LocationDeviceServiceImpl implements LocationDeviceService {
     }
 
     /**
+     * @param
+     * @return
      * @Description 保存新增的设备信息
      * @Author JXY
      * @Date 16:16 2021/4/16
-     * @param
-     * @return
      **/
     @Override
     @Transactional
@@ -77,12 +77,13 @@ public class LocationDeviceServiceImpl implements LocationDeviceService {
         int rows = locationDeviceMapper.insertDevice(device);
         return rows;
     }
+
     /**
+     * @param ：设备id
+     * @return :设备信息
      * @Description 根据设备Id查询设备信息
      * @Author JXY
      * @Date 9:51 2021/4/20
-     * @param ：设备id
-     * @return  :设备信息
      **/
 
     @Override
@@ -92,11 +93,11 @@ public class LocationDeviceServiceImpl implements LocationDeviceService {
     }
 
     /**
+     * @param
+     * @return 结果
      * @Description 保存修改设备信息
      * @Author JXY
      * @Date 14:36 2021/4/19
-     * @param
-     * @return  结果
      **/
     @Override
     @Transactional
@@ -104,29 +105,26 @@ public class LocationDeviceServiceImpl implements LocationDeviceService {
         device.setUpdateBy(ShiroUtils.getLoginName());
         LocationDevice originaldevice = locationDeviceMapper.selectDeviceBydId(device.getdId());
         String modifiedIp = device.getDeviceIp();
-        String mannuerfacturer = device.getManufacturer();
-        String deviceId=device.getDeviceId();
-        int dId=device.getdId();
-        if (modifiedIp!=null&&mannuerfacturer!=null&&deviceId!=null){
-            SysDeviceRecord deviceRecord=new SysDeviceRecord();
-            deviceRecord.setOriginalIp(originaldevice.getDeviceIp());
+        String deviceId = device.getDeviceId();
+        int dId = device.getdId();
+//        如果Ip发生变化则产生设备记录
+        if (modifiedIp != null && !modifiedIp.equals(originaldevice.getDeviceIp())) {
+            SysDeviceRecord deviceRecord = new SysDeviceRecord();
             deviceRecord.setModifiedIp(modifiedIp);
             deviceRecord.setDeviceId(deviceId);
-            deviceRecord.setManufacturer(mannuerfacturer);
             deviceRecord.setdId(dId);
-            sysDeviceRecordMapper.updateSysDeviceRecord(deviceRecord);
-        }else {
-            return 0;
+            deviceRecord.setOriginalIp(originaldevice.getDeviceIp());
+            sysDeviceRecordMapper.insertSysDeviceRecord(deviceRecord);
         }
         return locationDeviceMapper.updateDevice(device);
     }
 
     /**
+     * @param
+     * @return
      * @Description 根据设备号删除设备
      * @Author JXY
      * @Date 16:37 2021/4/19
-     * @param
-     * @return
      **/
     @Override
     public int deleteDeviceBydId(int dId) {
@@ -135,77 +133,79 @@ public class LocationDeviceServiceImpl implements LocationDeviceService {
     }
 
     /**
+     * @param
+     * @return
      * @Description 批量删除设备
      * @Author JXY
      * @Date 15:24 2021/4/20
-     * @param
-     * @return
      **/
     @Override
     public int deleteDeviceBydIds(String ids) {
 
-        Integer[] deviceDids= Convert.toIntArray(ids);
+        Integer[] deviceDids = Convert.toIntArray(ids);
         return locationDeviceMapper.deleteDeviceByIds(deviceDids);
     }
+
     /**
+     * @param :需要修改的设备集合
+     * @return
      * @Description 通过设备号更新设备Ip
      * @Author JXY
      * @Date 16:10 2021/4/22
-     * @param :需要修改的设备集合
-     * @return
      **/
     @Override
     @Transactional
     public int saveAllDeviceIp(List<LocationDevice> list) {
-        int successNumber=0;
-        String url="http://127.0.0.1:8000/terminal/settings?clientId=";
+        int successNumber = 0;
+        String url = "http://127.0.0.1:8000/terminal/settings?clientId=";
         JSONObject pareJson = new JSONObject();
 //        keyMap结构传输数据,一个循环代表一个设备数据
-         for (int i=0;i<list.size();i++){
+        for (int i = 0; i < list.size(); i++) {
 //             获取第一个设备数据
-             LocationDevice device = list.get(i);
-             JSONObject ipJson = new JSONObject();
-             ipJson.put("19",device.getDeviceIp());
-             JSONObject protJson = new JSONObject();
-             protJson.put("24","8033");
-             pareJson.put("parametersInt",protJson);
-             pareJson.put("parametersStr",ipJson);
+            LocationDevice device = list.get(i);
+            JSONObject ipJson = new JSONObject();
+            ipJson.put("19", device.getDeviceIp());
+            JSONObject protJson = new JSONObject();
+            protJson.put("24", "8033");
+            pareJson.put("parametersInt", protJson);
+            pareJson.put("parametersStr", ipJson);
 
-             System.out.println("json格式字符串："+pareJson.toJSONString());
+            System.out.println("json格式字符串：" + pareJson.toJSONString());
 
-             HttpHeaders headers = new HttpHeaders();
-             MediaType type = MediaType.parseMediaType("application/json; charset=UTF-8");
-             headers.setContentType(type);
-             headers.add("Accept", MediaType.APPLICATION_JSON.toString());
-             HttpEntity<String> formEntity = new HttpEntity<String>(pareJson.toString(), headers);
-             RestTemplate restTemplate = new RestTemplate();
-             String post = restTemplate.postForEntity(url + device.getDeviceId(), formEntity, String.class).getBody();
-            if (post==null){
+            HttpHeaders headers = new HttpHeaders();
+            MediaType type = MediaType.parseMediaType("application/json; charset=UTF-8");
+            headers.setContentType(type);
+            headers.add("Accept", MediaType.APPLICATION_JSON.toString());
+            HttpEntity<String> formEntity = new HttpEntity<String>(pareJson.toString(), headers);
+            RestTemplate restTemplate = new RestTemplate();
+            String post = restTemplate.postForEntity(url + device.getDeviceId(), formEntity, String.class).getBody();
+            if (post == null) {
                 return 0;
             }
 //             字符串转换为Json对象
-            JSONObject postJson=  JSON.parseObject(post);
-            String resultCode=postJson.getString("resultCode");
+            JSONObject postJson = JSON.parseObject(post);
+            String resultCode = postJson.getString("resultCode");
 
 //             deviceInfo原设备信息，device本次循环设备，deviceRecord生成的记录对象
-             LocationDevice deviceInfo = locationDeviceMapper.selectDeviceByDeviceId(device.getDeviceId());
-             SysDeviceRecord deviceRecord =new SysDeviceRecord();
-             deviceRecord.setDeviceId(device.getDeviceId());
-             deviceRecord.setModifiedIp(device.getDeviceIp());
-             deviceRecord.setManufacturer(deviceInfo.getManufacturer());
-             deviceRecord.setOriginalIp(deviceInfo.getDeviceIp());
-             deviceRecord.setdId(deviceInfo.getdId());
+            LocationDevice deviceInfo = locationDeviceMapper.selectDeviceByDeviceId(device.getDeviceId());
+            SysDeviceRecord deviceRecord = new SysDeviceRecord();
+            deviceRecord.setDeviceId(device.getDeviceId());
+            deviceRecord.setModifiedIp(device.getDeviceIp());
+            deviceRecord.setManufacturer(deviceInfo.getManufacturer());
+            deviceRecord.setOriginalIp(deviceInfo.getDeviceIp());
+            deviceRecord.setdId(deviceInfo.getdId());
 
-             if(resultCode!=null&&resultCode.equals("0")){
-                 //数据库执行更新IP的操作
-                 locationDeviceMapper.updateIpByDeviceId(device);
-                 deviceRecord.setSuccessFlag(0);
-                 sysDeviceRecordMapper.insertSysDeviceRecord(deviceRecord);
-                 successNumber++;
-             }else {
-                 sysDeviceRecordMapper.insertSysDeviceRecord(deviceRecord);
-                 continue; }
+            if (resultCode != null && resultCode.equals("0")) {
+                //数据库执行更新IP的操作
+                locationDeviceMapper.updateIpByDeviceId(device);
+                deviceRecord.setSuccessFlag(0);
+                sysDeviceRecordMapper.insertSysDeviceRecord(deviceRecord);
+                successNumber++;
+            } else {
+                sysDeviceRecordMapper.insertSysDeviceRecord(deviceRecord);
+                continue;
+            }
         }
-         return successNumber;
+        return successNumber;
     }
 }

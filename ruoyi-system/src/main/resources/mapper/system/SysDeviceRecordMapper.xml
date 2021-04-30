@@ -9,27 +9,28 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="deviceId"    column="deviceId"    />
         <result property="originalIp"    column="originalIp"    />
         <result property="modifiedIp"    column="modifiedIp"    />
-        <result property="manufacturer"    column="manufacturer"    />
         <result property="updateTime"    column="update_time"    />
         <result property="successFlag"    column="successFlag"    />
+        <result property="dId"    column="dId"    />
     </resultMap>
 
     <sql id="selectSysDeviceRecordVo">
-        select rId, deviceId, originalIp, modifiedIp, manufacturer, update_time, successFlag from sys_device_record
+        select rId,dId, deviceId, originalIp, modifiedIp, update_time, successFlag from sys_device_record
     </sql>
 
     <select id="selectSysDeviceRecordList" parameterType="com.ruoyi.system.domain.SysDeviceRecord" resultMap="SysDeviceRecordResult">
-        <include refid="selectSysDeviceRecordVo"/>
+
+        SELECT  rId, sys_device_record.dId,sys_device.deviceId,manufacturer, originalIp, modifiedIp, sys_device_record.update_time, successFlag FROM sys_device_record  LEFT JOIN  sys_device  ON  sys_device_record.dId=sys_device.dId
         <where>  
-            <if test="deviceId != null  and deviceId != ''"> AND deviceId like concat('%', #{deviceId}, '%')</if>
+            <if test="deviceId != null  and deviceId != ''"> AND sys_device_record.deviceId like concat('%', #{deviceId}, '%')</if>
             <if test="params.beginTime != null and params.beginTime != ''"><!-- 开始时间检索 -->
-                and date_format(update_time,'%y%m%d') &gt;= date_format(#{params.beginTime},'%y%m%d')
+                and date_format(sys_device_record.update_time,'%y%m%d') &gt;= date_format(#{params.beginTime},'%y%m%d')
             </if>
             <if test="params.endTime != null and params.endTime != ''"><!-- 结束时间检索 -->
-                and date_format(update_time,'%y%m%d') &lt;= date_format(#{params.endTime},'%y%m%d')
+                and date_format(sys_device_record.update_time,'%y%m%d') &lt;= date_format(#{params.endTime},'%y%m%d')
             </if>
         </where>
-        order by update_time desc
+        order by sys_device_record.update_time desc
     </select>
     
     <select id="selectSysDeviceRecordById" parameterType="Long" resultMap="SysDeviceRecordResult">
@@ -59,19 +60,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
          </trim>
     </insert>
 
-    <update id="updateSysDeviceRecord" parameterType="com.ruoyi.system.domain.SysDeviceRecord">
-        update sys_device_record
-        <trim prefix="SET" suffixOverrides=",">
-            <if test="deviceId != null">deviceId = #{deviceId},</if>
-            <if test="originalIp != null">originalIp = #{originalIp},</if>
-            <if test="modifiedIp != null">modifiedIp = #{modifiedIp},</if>
-            <if test="manufacturer != null">manufacturer = #{manufacturer},</if>
-            <if test="updateTime != null">update_time = #{updateTime},</if>
-            <if test="successFlag != null">successFlag = #{successFlag},</if>
-            update_time= sysdate()
-        </trim>
-        where dId = #{dId}
-    </update>
+    <select id="selectSysDeviceRecordManufacturer" parameterType="int" resultType="string">
+
+            SELECT manufacturer FROM sys_device_record   LEFT JOIN  sys_device ON  (sys_device_record.dId=sys_device.dId)
+        where sys_device_record.dId=#{dId} limit 1
+    </select>
 
     <delete id="deleteSysDeviceRecordById" parameterType="Long">
         delete from sys_device_record where rId = #{rId}
@@ -83,5 +76,17 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             #{rId}
         </foreach>
     </delete>
+
+    <update id="updateOneSysDeviceRecord" parameterType="long">
+        update sys_device_record
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="deviceId != null">deviceId = #{deviceId},</if>
+            <if test="originalIp != null">originalIp = #{originalIp},</if>
+            <if test="modifiedIp != null">modifiedIp = #{modifiedIp},</if>
+            <if test="successFlag != null">successFlag = #{successFlag},</if>
+            update_time= sysdate()
+        </trim>
+        where rId = #{rId}
+    </update>
 
 </mapper>

@@ -34,16 +34,24 @@ public class SysDeviceRecordServiceImpl implements ISysDeviceRecordService
     }
 
     /**
-     * 查询【请填写功能名称】列表
+     * 查询设备IP更改记录列表
      * 
      * @param sysDeviceRecord 【请填写功能名称】
-     * @return 【请填写功能名称】
+     * @return 【添加厂家描述属性】
      */
     @Override
     public List<SysDeviceRecord> selectSysDeviceRecordList(SysDeviceRecord sysDeviceRecord)
-    {
-        return sysDeviceRecordMapper.selectSysDeviceRecordList(sysDeviceRecord);
-    }
+       /* List<SysDeviceRecord> sysDeviceRecords = sysDeviceRecordMapper.selectSysDeviceRecordList(sysDeviceRecord);
+        for (int i=0;i<sysDeviceRecords.size();i++){
+
+            SysDeviceRecord deviceRecord = sysDeviceRecords.get(i);
+            int dId = deviceRecord.getdId();
+            deviceRecord.setManufacturer(sysDeviceRecordMapper.selectSysDeviceRecordManufacturer(dId));
+        }*/
+//        System.out.println(sysDeviceRecords);
+//        return sysDeviceRecords;
+    {return sysDeviceRecordMapper.selectSysDeviceRecordList(sysDeviceRecord);}
+
 
     /**
      * 新增【请填写功能名称】
@@ -57,18 +65,6 @@ public class SysDeviceRecordServiceImpl implements ISysDeviceRecordService
         return sysDeviceRecordMapper.insertSysDeviceRecord(sysDeviceRecord);
     }
 
-    /**
-     * 修改【请填写功能名称】
-     * 
-     * @param sysDeviceRecord 【请填写功能名称】
-     * @return 结果
-     */
-    @Override
-    public int updateSysDeviceRecord(SysDeviceRecord sysDeviceRecord)
-    {
-        sysDeviceRecord.setUpdateTime(DateUtils.getNowDate());
-        return sysDeviceRecordMapper.updateSysDeviceRecord(sysDeviceRecord);
-    }
 
     /**
      * 删除【请填写功能名称】对象

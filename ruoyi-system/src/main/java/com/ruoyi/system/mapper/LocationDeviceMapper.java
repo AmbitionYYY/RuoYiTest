@@ -14,31 +14,32 @@ import java.util.List;
 @Component
 public interface LocationDeviceMapper {
 
-/**
- * @Description 根据条件分页查询设备列表数据
- * @Author JXY
- * @Date 19:04 2021/4/15
- * @param :设备查询数据条件
- * @return 设备查询结果列表
- **/
+    /**
+     * @param :设备查询数据条件
+     * @return 设备查询结果列表
+     * @Description 根据条件分页查询设备列表数据
+     * @Author JXY
+     * @Date 19:04 2021/4/15
+     **/
     List<LocationDevice> selectDeviceList(LocationDevice device);
 
     /**
+     * @param
+     * @return
      * @Description 用于校验设备是否存在
      * @Author JXY
      * @Date 9:53 2021/4/20
-     * @param
-     * @return
      **/
     int checkDeviceByDeviceId(String deviceId);
 
     int insertDevice(LocationDevice device);
+
     /**
+     * @param ：设备号
+     * @return
      * @Description 根据设备号查询设备，用于编辑设备
      * @Author JXY
      * @Date 10:58 2021/4/19
-     * @param ：设备号
-     * @return
      **/
 
     LocationDevice selectDeviceBydId(int dId);
@@ -52,11 +53,11 @@ public interface LocationDeviceMapper {
     void updateIpByDeviceId(LocationDevice device);
 
     /**
+     * @param ：设备号
+     * @return ：设备对象
      * @Description 通过设备号查询设备数据
      * @Author JXY
      * @Date 16:29 2021/4/28
-     * @param  ：设备号
-     * @return  ：设备对象
      **/
     LocationDevice selectDeviceByDeviceId(String deviceId);
 }
