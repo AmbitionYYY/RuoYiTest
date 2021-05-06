@@ -1,0 +1,67 @@
+Controller层
+/**
+     * @Description 通过设备号批量修改设备Ip
+     * @Author JXY
+     * @Date 10:54 2021/4/26
+     * @param   :设备号和设备Ip
+     * @return
+     **/
+    @RequiresPermissions("location:device:editAllDeviceIp")
+    @Log(title = "设备管理", businessType = BusinessType.UPDATE)
+    @PostMapping("/editAllDeviceIp")
+    @ResponseBody
+    public AjaxResult saveDeviceIp(@RequestParam( value="editDeviceIds") String editDeviceIds,@RequestParam( value="deviceIp") String deviceIp){
+        System.out.println("设备号集合："+editDeviceIds+"设备IP"+deviceIp);
+        return toAjax(locationDeviceService.saveAllDeviceIp(editDeviceIds,deviceIp));
+    }
+    
+    
+    
+    Service层
+        int saveAllDeviceIp(String editDeviceIds,String deviceIp);
+        
+        
+        
+    ServiceImpl层
+         /**
+     * @param :设备号集合和设备Ip
+     * @return
+     * @Description 通过设备号更新设备Ip
+     * @Author JXY
+     * @Date 16:10 2021/4/22
+     **/
+    @Override
+    @Transactional
+    public int saveAllDeviceIp(String editDeviceIds,String deviceIp) {
+        int successNumber = 0;
+        List<String> result=new ArrayList<String>();
+//        String url = "http://127.0.0.1:8000/terminal/settings?clientId=";
+        if (editDeviceIds.indexOf(",")>0){
+            result= Arrays.asList(editDeviceIds.split(","));
+        }else {
+            result.add(editDeviceIds);
+        }
+        System.out.println(result);
+        for (int i=0;i<result.size();i++){
+            LocationDevice locationDevice=new LocationDevice();
+            locationDevice.setDeviceId(result.get(i));
+            locationDevice.setDeviceIp(deviceIp);
+            System.out.println(locationDevice);
+            locationDeviceMapper.updateIpByDeviceId(locationDevice);
+         successNumber++;
+        }
+        return successNumber;
+    }
+
+
+mapper.xml文件
+
+<!--    根据设备号更改设备ip-->
+    <update id="updateIpByDeviceId" parameterType="com.ruoyi.common.core.domain.entity.LocationDevice">
+        update ry.sys_device
+        <set>deviceIp= #{deviceIp},update_time= sysdate()</set>
+        where
+        deviceId= #{deviceId}
+    </update>
+    
+    
